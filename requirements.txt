@@ -1,0 +1,11 @@
+pdfplumber
+chromadb
+sentence-transformers
+rank_bm25
+google-genai
+fastapi
+uvicorn
+python-dotenv
+pydantic
+reportlab
+tqdm

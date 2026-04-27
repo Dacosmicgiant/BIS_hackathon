@@ -1,0 +1,33 @@
+# Virtual environment
+.venv/
+venv/
+
+# Large binary files
+data/SP21.pdf
+data/BIS_Report_*.pdf
+
+# Generated index (rebuild from source)
+index/
+
+# Environment secrets
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug scripts
+debug_parser.py
+debug_scope.py
+find_pages.py
+merge_for_eval.py
