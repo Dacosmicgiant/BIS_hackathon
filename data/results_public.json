@@ -8,7 +8,10 @@
       "IS 8042 : 1989",
       "IS 12330 : 1988"
     ],
-    "latency_seconds": 0.1038
+    "latency_seconds": 0.1108,
+    "expected_standards": [
+      "IS 269: 1989"
+    ]
   },
   {
     "id": "PUB-02",
@@ -19,7 +22,10 @@
       "IS 3068 : 1986",
       "IS 2686 : 1977"
     ],
-    "latency_seconds": 0.054
+    "latency_seconds": 0.0529,
+    "expected_standards": [
+      "IS 383: 1970"
+    ]
   },
   {
     "id": "PUB-03",
@@ -30,7 +36,10 @@
       "IS 5820 : 1970",
       "IS 5758 : 1984"
     ],
-    "latency_seconds": 0.0484
+    "latency_seconds": 0.0495,
+    "expected_standards": [
+      "IS 458: 2003"
+    ]
   },
   {
     "id": "PUB-04",
@@ -41,7 +50,10 @@
       "IS 3620 : 1979",
       "IS 2185 (Part 3) : 1984"
     ],
-    "latency_seconds": 0.0512
+    "latency_seconds": 0.0529,
+    "expected_standards": [
+      "IS 2185 (Part 2): 1983"
+    ]
   },
   {
     "id": "PUB-05",
@@ -52,7 +64,10 @@
       "IS 10388 : 1982",
       "IS 13008 : 1990"
     ],
-    "latency_seconds": 0.0455
+    "latency_seconds": 0.0733,
+    "expected_standards": [
+      "IS 459: 1992"
+    ]
   },
   {
     "id": "PUB-06",
@@ -63,7 +78,10 @@
       "IS 8043 : 1991",
       "IS 269 : 1989"
     ],
-    "latency_seconds": 0.0429
+    "latency_seconds": 0.1043,
+    "expected_standards": [
+      "IS 455: 1989"
+    ]
   },
   {
     "id": "PUB-07",
@@ -74,7 +92,10 @@
       "IS 12330 : 1988",
       "IS 455 : 1989"
     ],
-    "latency_seconds": 0.0486
+    "latency_seconds": 0.0569,
+    "expected_standards": [
+      "IS 1489 (Part 2): 1991"
+    ]
   },
   {
     "id": "PUB-08",
@@ -85,7 +106,10 @@
       "IS 2185 (Part 1) : 1979",
       "IS 4832 (Part 2) : 1969"
     ],
-    "latency_seconds": 0.0461
+    "latency_seconds": 0.0568,
+    "expected_standards": [
+      "IS 3466: 1988"
+    ]
   },
   {
     "id": "PUB-09",
@@ -96,7 +120,10 @@
       "IS 5751 : 1984",
       "IS 14402 : 1996"
     ],
-    "latency_seconds": 0.0504
+    "latency_seconds": 0.0607,
+    "expected_standards": [
+      "IS 6909: 1990"
+    ]
   },
   {
     "id": "PUB-10",
@@ -107,6 +134,9 @@
       "IS 12330 : 1988",
       "IS 8043 : 1991"
     ],
-    "latency_seconds": 0.0454
+    "latency_seconds": 0.0506,
+    "expected_standards": [
+      "IS 8042: 1989"
+    ]
   }
 ]

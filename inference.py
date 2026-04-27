@@ -23,12 +23,11 @@ def main():
         print(f"✗ Input file not found: {args.input}")
         sys.exit(1)
 
-    # ── Pre-warm — load model and index BEFORE timing queries ────────────────
+    # Pre-warm — load model and index BEFORE timing queries
     print("🔄 Pre-loading retrieval resources...")
     _load_resources()
     print("✓ Ready\n")
 
-    # Load queries
     with open(args.input, encoding="utf-8") as f:
         queries = json.load(f)
 
@@ -45,11 +44,18 @@ def main():
         standards = recommend_codes_only(query, top_n=5)
         latency   = round(time.time() - start, 4)
 
-        results.append({
+        result = {
             "id":                  query_id,
             "retrieved_standards": standards,
             "latency_seconds":     latency,
-        })
+        }
+
+        # Pass through expected_standards if present in input
+        # — required for eval_script.py to calculate metrics
+        if "expected_standards" in item:
+            result["expected_standards"] = item["expected_standards"]
+
+        results.append(result)
 
         print(f"  [{i+1:3d}/{len(queries)}] {query_id} → "
               f"{standards[0] if standards else 'none'} ({latency:.3f}s)")
