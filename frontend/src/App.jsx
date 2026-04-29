@@ -14,14 +14,14 @@ const EXAMPLES = [
 ]
 
 export default function App() {
-  const [query, setQuery]               = useState('')
-  const [results, setResults]           = useState(null)
-  const [loading, setLoading]           = useState(false)
-  const [exporting, setExporting]       = useState(false)
-  const [error, setError]               = useState(null)
-  const [latency, setLatency]           = useState(null)
-  const [message, setMessage]           = useState(null)
-  const [withRationale, setWithRationale] = useState(true)
+  const [query, setQuery]                 = useState('')
+  const [results, setResults]             = useState(null)
+  const [loading, setLoading]             = useState(false)
+  const [exporting, setExporting]         = useState(false)
+  const [error, setError]                 = useState(null)
+  const [latency, setLatency]             = useState(null)
+  const [message, setMessage]             = useState(null)
+  const [withRationale, setWithRationale] = useState(false)
 
   async function handleSearch(q) {
     if (!q.trim()) return
@@ -80,11 +80,6 @@ export default function App() {
     setError(null)
   }
 
-  function handleExample(example) {
-    setQuery(example)
-    handleSearch(example)
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
 
@@ -105,7 +100,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Rationale toggle */}
           <button
             onClick={() => setWithRationale(r => !r)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs
@@ -123,10 +117,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main */}
       <main className="max-w-4xl mx-auto px-4 py-10">
 
-        {/* Hero */}
         {!results && !loading && !message && (
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
@@ -139,7 +131,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Search */}
         <SearchBar
           onSearch={handleSearch}
           loading={loading}
@@ -147,23 +138,21 @@ export default function App() {
           setQuery={setQuery}
         />
 
-        {/* Mode hint */}
         {!results && !loading && (
           <p className="text-center text-xs text-gray-400 mt-2">
             {withRationale
-              ? 'AI Rationale mode — explains why each standard applies (slower)'
-              : 'Fast mode — retrieval only, no AI explanation (~50ms)'
+              ? 'AI Rationale mode — explains why each standard applies'
+              : 'Fast mode — retrieval only (~50ms)'
             }
           </p>
         )}
 
-        {/* Example chips */}
         {!results && !loading && !message && (
           <div className="mt-4 flex flex-wrap gap-2 justify-center">
             {EXAMPLES.map(example => (
               <button
                 key={example}
-                onClick={() => handleExample(example)}
+                onClick={() => { setQuery(example); handleSearch(example) }}
                 className="text-xs px-3 py-1.5 rounded-full bg-white border border-gray-200
                            text-gray-600 hover:border-blue-400 hover:text-blue-600
                            transition-colors cursor-pointer"
@@ -174,18 +163,14 @@ export default function App() {
           </div>
         )}
 
-        {/* Loading */}
         {loading && <LoadingState withRationale={withRationale} />}
 
-        {/* Error */}
         {error && (
-          <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-xl
-                          text-red-700 text-sm">
+          <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
             {error}
           </div>
         )}
 
-        {/* Invalid query message */}
         {message && !loading && (
           <div className="mt-8 text-center py-10">
             <p className="text-gray-500 text-sm mb-6">{message}</p>
@@ -193,7 +178,7 @@ export default function App() {
               {EXAMPLES.map(example => (
                 <button
                   key={example}
-                  onClick={() => handleExample(example)}
+                  onClick={() => { setQuery(example); handleSearch(example) }}
                   className="text-xs px-3 py-1.5 rounded-full bg-white border border-gray-200
                              text-gray-600 hover:border-blue-400 hover:text-blue-600
                              transition-colors cursor-pointer"
@@ -205,11 +190,8 @@ export default function App() {
           </div>
         )}
 
-        {/* Results */}
         {results && !loading && results.length > 0 && (
           <div className="mt-8">
-
-            {/* Results header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-gray-800">
@@ -230,7 +212,6 @@ export default function App() {
                     : `${latency.toFixed(2)}s`
                   }
                 </span>
-
                 <button
                   onClick={handleExport}
                   disabled={exporting}
@@ -247,7 +228,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Cards */}
             <div className="space-y-3">
               {results.map((standard, i) => (
                 <StandardCard
@@ -268,7 +248,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Empty results */}
         {results && !loading && results.length === 0 && !message && (
           <EmptyState />
         )}

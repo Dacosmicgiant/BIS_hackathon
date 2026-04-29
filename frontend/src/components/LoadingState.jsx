@@ -1,4 +1,3 @@
-// src/components/LoadingState.jsx
 export default function LoadingState({ withRationale }) {
   return (
     <div className="mt-8 space-y-3">

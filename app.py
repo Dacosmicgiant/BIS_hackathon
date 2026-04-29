@@ -4,6 +4,7 @@ import os
 import json
 import time
 import tempfile
+from contextlib import asynccontextmanager
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
@@ -16,12 +17,22 @@ from typing import Optional
 from pipeline import recommend, recommend_codes_only
 from retriever import _load_resources
 
+# ── Lifespan ──────────────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app):
+    print("🚀 Warming up retrieval resources...")
+    _load_resources()
+    print("✓ Ready")
+    yield
+
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
     title="BIS Copilot API",
     description="AI-powered BIS standard recommendation engine for Indian MSEs",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -30,15 +41,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ── Warm up on startup ────────────────────────────────────────────────────────
-
-@app.on_event("startup")
-async def startup():
-    print("🚀 Warming up retrieval resources...")
-    _load_resources()
-    print("✓ Ready")
-
 
 # ── Schema ────────────────────────────────────────────────────────────────────
 
@@ -108,7 +110,6 @@ def recommend_get(query: str, top_n: int = 5, with_rationale: bool = True):
 
 @app.post("/export")
 def export_report(req: RecommendRequest):
-    """Generate and return a PDF compliance report."""
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 

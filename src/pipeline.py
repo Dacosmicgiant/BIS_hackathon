@@ -5,28 +5,54 @@ import json
 import time
 from typing import List, Dict
 from dotenv import load_dotenv
-from google import genai
+from mistralai import Mistral
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-GEMINI_MODEL  = "gemini-2.0-flash-lite"
+MISTRAL_MODEL = "mistral-small-latest"
 MAX_RATIONALE = 80
 TOP_N         = 5
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _clean_scope_for_display(scope: str, max_chars: int = 180) -> str:
-    """Truncate scope at first full sentence for clean fallback display."""
     match = re.search(r"\.(\s|$)", scope)
     if match and match.start() > 30:
         return scope[:match.start() + 1].strip()
     return scope[:max_chars].strip()
 
 
-# ── Gemini client — lazy init ─────────────────────────────────────────────────
+def _is_meaningful_query(query: str) -> bool:
+    """
+    Local guard — zero API calls.
+    Rejects greetings and nonsense without touching Mistral.
+    """
+    q = query.strip().lower()
+
+    if len(q) < 8:
+        return False
+
+    GREETINGS = {
+        "hello", "hi", "hey", "howdy", "hiya", "sup",
+        "good morning", "good evening", "good afternoon",
+        "how are you", "what's up", "whats up",
+        "thanks", "thank you", "ok", "okay", "test",
+    }
+    if q in GREETINGS:
+        return False
+
+    # Must have at least 2 words longer than 4 chars
+    words = re.findall(r"[a-z]{4,}", q)
+    if len(words) < 2:
+        return False
+
+    return True
+
+
+# ── Mistral client — lazy init ────────────────────────────────────────────────
 
 _client = None
 
@@ -34,36 +60,11 @@ def _get_client():
     global _client
     if _client is not None:
         return _client
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("MISTRAL_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY not set in .env")
-    _client = genai.Client(api_key=api_key)
+        raise ValueError("MISTRAL_API_KEY not set in .env")
+    _client = Mistral(api_key=api_key)
     return _client
-
-
-# ── Query validator ───────────────────────────────────────────────────────────
-
-def _is_valid_product_query(query: str) -> bool:
-    """
-    Check if query is product/compliance related.
-    Falls back to True (permissive) if Gemini is unavailable.
-    """
-    prompt = f"""Is the following query asking about a product, manufacturing process,
-building material, or BIS/regulatory compliance requirement?
-
-Query: "{query}"
-
-Reply with only: YES or NO"""
-
-    try:
-        client   = _get_client()
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-        )
-        return response.text.strip().upper().startswith("YES")
-    except Exception:
-        return True  # permissive fallback
 
 
 # ── Rationale generation ──────────────────────────────────────────────────────
@@ -73,9 +74,8 @@ def _generate_rationale(
     standards: List[Dict],
 ) -> List[Dict]:
     """
-    Call Gemini Flash Lite to generate rationale per standard.
-    Retries up to 3 times on rate limit with exponential backoff.
-    Falls back to clean scope text if all retries fail.
+    Single Mistral call — generates rationale for all standards at once.
+    Falls back to clean scope text on any failure.
     """
     standards_block = "\n".join([
         f"{i+1}. {s['is_code']} — {s['title']}\n   Scope: {s['scope'][:300]}"
@@ -106,12 +106,12 @@ Respond ONLY with a valid JSON array in this exact format:
     for attempt in range(MAX_RETRIES):
         try:
             client   = _get_client()
-            response = client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=prompt,
+            response = client.chat.complete(
+                model=MISTRAL_MODEL,
+                messages=[{"role": "user", "content": prompt}],
             )
             text = (
-                response.text.strip()
+                response.choices[0].message.content.strip()
                 .removeprefix("```json")
                 .removeprefix("```")
                 .removesuffix("```")
@@ -129,7 +129,11 @@ Respond ONLY with a valid JSON array in this exact format:
             return standards
 
         except Exception as e:
-            is_rate_limit = "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)
+            is_rate_limit = (
+                "429"               in str(e) or
+                "rate"              in str(e).lower() or
+                "too many requests" in str(e).lower()
+            )
             if is_rate_limit and attempt < MAX_RETRIES - 1:
                 delay = RETRY_DELAYS[attempt]
                 print(f"  ⚠ Rate limited — retrying in {delay}s "
@@ -137,13 +141,11 @@ Respond ONLY with a valid JSON array in this exact format:
                 time.sleep(delay)
                 continue
             else:
-                print(f"  ⚠ Gemini failed: {e} — using scope fallback")
+                print(f"  ⚠ Mistral failed: {e} — using scope fallback")
                 break
 
-    # Fallback
     for s in standards:
         s["rationale"] = _clean_scope_for_display(s["scope"])
-
     return standards
 
 
@@ -154,10 +156,13 @@ def recommend(
     top_n:          int  = TOP_N,
     with_rationale: bool = True,
 ) -> Dict:
+    """
+    Full pipeline — max 1 LLM call (rationale only).
+    Query validation is local, zero API calls.
+    """
     start = time.time()
 
-    # Guard — reject non-product queries
-    if not _is_valid_product_query(query):
+    if not _is_meaningful_query(query):
         return {
             "query":           query,
             "standards":       [],
@@ -180,10 +185,7 @@ def recommend(
 
 
 def recommend_codes_only(query: str, top_n: int = TOP_N) -> List[str]:
-    """
-    Fast path for inference.py.
-    Pure retrieval — zero Gemini calls, no validator, no rationale.
-    """
+    """Fast path for inference.py — zero LLM calls."""
     from retriever import retrieve
     results = retrieve(query, top_n=top_n)
     return [r["is_code"] for r in results]
