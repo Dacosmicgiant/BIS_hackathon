@@ -3,7 +3,6 @@
 venv/
 
 # Large binary files
-data/SP21.pdf
 data/BIS_Report_*.pdf
 
 # Generated index (rebuild from source)
