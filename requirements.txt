@@ -1,11 +1,30 @@
-pdfplumber
-chromadb
-sentence-transformers
-rank_bm25
-google-genai
-fastapi
-uvicorn
-python-dotenv
-pydantic
-reportlab
-tqdm
+# PDF parsing
+pdfplumber==0.11.9
+# Embeddings + vector store
+sentence-transformers==5.4.1
+chromadb==1.5.8
+# Sparse retrieval
+rank-bm25==0.2.2
+# LLM
+mistralai==1.2.5
+# Backend
+fastapi==0.136.1
+uvicorn==0.46.0
+python-multipart==0.0.27
+# Data validation
+pydantic==2.13.3
+pydantic-settings==2.14.0
+pydantic_core==2.46.3
+# Environment
+python-dotenv==1.2.2
+# PDF export
+reportlab==4.4.10
+# Progress bars
+tqdm==4.67.3
+# OpenTelemetry — pinned to avoid chromadb conflicts
+opentelemetry-api==1.41.1
+opentelemetry-sdk==1.41.1
+opentelemetry-semantic-conventions==0.62b1
+opentelemetry-exporter-otlp-proto-grpc==1.41.1
+opentelemetry-exporter-otlp-proto-common==1.41.1
+opentelemetry-proto==1.41.1
