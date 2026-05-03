@@ -8,6 +8,7 @@ export default defineConfig({
     proxy: {
       '/recommend': 'http://localhost:8000',
       '/health':    'http://localhost:8000',
+      '/export':    'http://localhost:8000',
     }
   }
 })
