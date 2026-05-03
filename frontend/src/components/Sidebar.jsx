@@ -1,4 +1,4 @@
-import { Home, History, Bookmark, Settings, LogOut } from 'lucide-react'
+import { Home, History, Bookmark, Settings, LogOut, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Sidebar({ onNewSearch, activeView, setActiveView }) {
@@ -51,6 +51,12 @@ export default function Sidebar({ onNewSearch, activeView, setActiveView }) {
 
       {/* Bottom Actions */}
       <div className="mt-auto p-6 space-y-1">
+        <NavItem 
+          icon={<User size={18} />} 
+          label="Profile" 
+          active={activeView === 'profile'} 
+          onClick={() => setActiveView('profile')} 
+        />
         <NavItem icon={<Settings size={18} />} label="Settings" />
         
         {/* Logout Button */}

@@ -1,6 +1,8 @@
-import { Search, User, Sparkles, Zap } from 'lucide-react'
+import { Search, Sparkles, Zap } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
-export default function TopNav({ query, setQuery, onSearch, loading, withRationale, setWithRationale }) {
+export default function TopNav({ query, setQuery, onSearch, loading, withRationale, setWithRationale, setActiveView }) {
+  const { user } = useAuth()
   
   function handleKeyDown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -8,6 +10,16 @@ export default function TopNav({ query, setQuery, onSearch, loading, withRationa
       onSearch(query)
     }
   }
+
+  // Smarter Initials Logic
+  const initials = (() => {
+    if (!user?.username) return 'U'
+    const parts = user.username.trim().split(/\s+/)
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase()
+    }
+    return parts[0][0].toUpperCase()
+  })()
 
   return (
     <header className="h-20 bg-[#0B1121] border-b border-slate-800/50 flex items-center px-8 shrink-0">
@@ -47,9 +59,13 @@ export default function TopNav({ query, setQuery, onSearch, loading, withRationa
           }
         </button>
 
-        {/* Profile Icon */}
-        <button className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer">
-          <User size={16} />
+        {/* Profile Icon - NOW SHOWS INITIALS */}
+        <button 
+          onClick={() => setActiveView('profile')}
+          className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:border-slate-500 transition-colors cursor-pointer text-xs font-bold tracking-wider"
+          title="View Profile"
+        >
+          {initials}
         </button>
       </div>
     </header>

@@ -7,6 +7,7 @@ import AuthModal from './components/AuthModal'
 import Sidebar from './components/Sidebar'
 import TopNav from './components/TopNav'
 import IndustrialCard from './components/IndustrialCard'
+import ProfileView from './components/ProfileView'
 
 const EXAMPLES = [
   "33 Grade Ordinary Portland Cement",
@@ -156,6 +157,7 @@ export default function App() {
           loading={loading} 
           withRationale={withRationale}
           setWithRationale={setWithRationale}
+          setActiveView={setActiveView}
         />
 
         <main className="flex-1 overflow-y-auto px-8 py-10">
@@ -220,6 +222,14 @@ export default function App() {
                   </div>
                 )}
               </div>
+            )}
+
+            {/* --- PROFILE VIEW --- */}
+            {activeView === 'profile' && (
+              <ProfileView 
+                historyCount={history.length} 
+                savedCount={savedStandards.length} 
+              />
             )}
 
             {/* --- SEARCH VIEW --- */}
