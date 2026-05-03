@@ -57,7 +57,13 @@ export default function Sidebar({ onNewSearch, activeView, setActiveView }) {
           active={activeView === 'profile'} 
           onClick={() => setActiveView('profile')} 
         />
-        <NavItem icon={<Settings size={18} />} label="Settings" />
+        {/* UPDATED SETTINGS BUTTON */}
+        <NavItem 
+          icon={<Settings size={18} />} 
+          label="Settings" 
+          active={activeView === 'settings'} 
+          onClick={() => setActiveView('settings')} 
+        />
         
         {/* Logout Button */}
         <button 

@@ -8,6 +8,7 @@ import Sidebar from './components/Sidebar'
 import TopNav from './components/TopNav'
 import IndustrialCard from './components/IndustrialCard'
 import ProfileView from './components/ProfileView'
+import SettingsView from './components/SettingsView'
 
 const EXAMPLES = [
   "33 Grade Ordinary Portland Cement",
@@ -229,6 +230,14 @@ export default function App() {
               <ProfileView 
                 historyCount={history.length} 
                 savedCount={savedStandards.length} 
+              />
+            )}
+
+            {/* --- SETTINGS VIEW --- */}
+            {activeView === 'settings' && (
+              <SettingsView 
+                withRationale={withRationale} 
+                setWithRationale={setWithRationale} 
               />
             )}
 
