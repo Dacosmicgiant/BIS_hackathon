@@ -385,9 +385,20 @@ ReportLab generates a structured PDF with:
 
 ---
 
+## Team
+
+**Project Phoenix**
+
+- Vedant Vankar
+- Gitanjali Pandey
+
+BIS × Sigma Squad AI Hackathon — IIT Tirupati, April–May 2026
+
+---
+
 ## Acknowledgements
 
 - Bureau of Indian Standards for BIS SP 21 : 2005
 - IIT Tirupati Sigma Squad for organizing the hackathon
 - [BAAI](https://huggingface.co/BAAI/bge-small-en-v1.5) for the BGE embedding model
-- Google for Gemini 2.0 Flash Lite API
+- [Mistral AI](https://mistral.ai) for the Mistral API
