@@ -121,6 +121,8 @@ export default function App() {
           setQuery={setQuery} 
           onSearch={handleSearch} 
           loading={loading} 
+          withRationale={withRationale}
+          setWithRationale={setWithRationale}
         />
 
         <main className="flex-1 overflow-y-auto px-8 py-10">
