@@ -1,6 +1,10 @@
-import { Home, History, Bookmark, Settings } from 'lucide-react'
+import { Home, History, Bookmark, Settings, LogOut } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export default function Sidebar({ onNewSearch, activeView, setActiveView }) {
+  // Grab the logout function from our AuthContext
+  const { logout } = useAuth()
+
   return (
     <aside className="w-64 bg-[#050B14] border-r border-slate-800 flex flex-col h-full shrink-0">
       {/* Branding */}
@@ -48,6 +52,15 @@ export default function Sidebar({ onNewSearch, activeView, setActiveView }) {
       {/* Bottom Actions */}
       <div className="mt-auto p-6 space-y-1">
         <NavItem icon={<Settings size={18} />} label="Settings" />
+        
+        {/* Logout Button */}
+        <button 
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-slate-500 hover:text-red-400 hover:bg-red-500/10 mt-2"
+        >
+          <LogOut size={18} />
+          Log out
+        </button>
       </div>
     </aside>
   )

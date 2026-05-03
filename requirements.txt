@@ -28,3 +28,7 @@ opentelemetry-semantic-conventions==0.62b1
 opentelemetry-exporter-otlp-proto-grpc==1.41.1
 opentelemetry-exporter-otlp-proto-common==1.41.1
 opentelemetry-proto==1.41.1
+# Authentication
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
+python-jose[cryptography]==3.3.0

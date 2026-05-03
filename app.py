@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -16,6 +16,7 @@ from typing import Optional
 
 from pipeline import recommend, recommend_codes_only
 from retriever import _load_resources
+from auth import router as auth_router, get_current_user
 
 # ── Lifespan ──────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -74,7 +77,7 @@ def health():
 
 
 @app.post("/recommend", response_model=RecommendResponse)
-def recommend_standards(req: RecommendRequest):
+def recommend_standards(req: RecommendRequest, current_user: str = Depends(get_current_user)):
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
     if len(req.query) > 2000:
@@ -109,7 +112,7 @@ def recommend_get(query: str, top_n: int = 5, with_rationale: bool = True):
 
 
 @app.post("/export")
-def export_report(req: RecommendRequest):
+def export_report(req: RecommendRequest, current_user: str = Depends(get_current_user)):
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 

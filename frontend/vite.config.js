@@ -9,6 +9,8 @@ export default defineConfig({
       '/recommend': 'http://localhost:8000',
       '/health':    'http://localhost:8000',
       '/export':    'http://localhost:8000',
+      '/signup':    'http://localhost:8000',
+      '/token':     'http://localhost:8000',
     }
   }
 })

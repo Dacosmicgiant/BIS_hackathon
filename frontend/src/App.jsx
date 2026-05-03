@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Sparkles, Download, Loader2, History as HistoryIcon, Bookmark as BookmarkIcon } from 'lucide-react'
 import axios from 'axios'
 
+import { useAuth } from './context/AuthContext'
+import AuthModal from './components/AuthModal'
 import Sidebar from './components/Sidebar'
 import TopNav from './components/TopNav'
 import IndustrialCard from './components/IndustrialCard'
@@ -14,6 +16,13 @@ const EXAMPLES = [
 ]
 
 export default function App() {
+  const { user, loading: authLoading } = useAuth()
+
+  // Wait for token check
+  if (authLoading) return <div className="h-screen w-screen bg-[#0B1121]" />
+  
+  // Force login
+  if (!user) return <AuthModal />
   const [query, setQuery]                 = useState('')
   const [results, setResults]             = useState(null)
   const [loading, setLoading]             = useState(false)
