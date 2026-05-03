@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, Download, Loader2, History as HistoryIcon, Bookmark as BookmarkIcon } from 'lucide-react'
 import axios from 'axios'
 
@@ -37,16 +37,38 @@ export default function App() {
   const [savedStandards, setSavedStandards] = useState([]) // NEW: Stores saved standard objects
   const [withRationale, setWithRationale] = useState(true)
 
+  // Fetch user's saved data from backend on load
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const res = await axios.get('/user/data')
+        setHistory(res.data.history || [])
+        setSavedStandards(res.data.saved || [])
+      } catch (err) {
+        console.error("Failed to load user data", err)
+      }
+    }
+    fetchUserData()
+  }, []) // Empty dependency array means it runs once when the component mounts
+
   // Toggle standard in/out of the saved array
-  function toggleSaveStandard(standard) {
+  async function toggleSaveStandard(standard) {
+    // 1. Optimistic UI update (makes the button feel instantly responsive)
     setSavedStandards(prev => {
       const isSaved = prev.some(s => s.is_code === standard.is_code)
       if (isSaved) {
-        return prev.filter(s => s.is_code !== standard.is_code) // Remove it
+        return prev.filter(s => s.is_code !== standard.is_code)
       } else {
-        return [...prev, standard] // Add it
+        return [...prev, standard]
       }
     })
+
+    // 2. Sync with Backend
+    try {
+      await axios.post('/user/saved', standard)
+    } catch (err) {
+      console.error("Failed to sync save status", err)
+    }
   }
 
   async function handleSearch(q) {
@@ -58,6 +80,8 @@ export default function App() {
       if (prev[0] === q.trim()) return prev;
       return [q.trim(), ...prev];
     })
+
+    axios.post('/user/history', { query: q.trim() }).catch(e => console.error(e))
 
     setLoading(true)
     setError(null)

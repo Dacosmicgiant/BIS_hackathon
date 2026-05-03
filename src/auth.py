@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from typing import List, Optional
 
 # Load from .env
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-for-dev")
@@ -25,6 +26,19 @@ class UserCreate(BaseModel):
     username: str
     password: str
 
+class HistoryItem(BaseModel):
+    query: str
+
+class SavedStandard(BaseModel):
+    is_code: str
+    title: str
+    scope: str
+    section_name: str
+    subcategory: Optional[str] = ""
+    year: Optional[int] = None
+    rrf_score: float
+    rationale: Optional[str] = None
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -43,7 +57,9 @@ async def signup(user: UserCreate):
         raise HTTPException(status_code=400, detail="Username already exists")
     users_db[user.username] = {
         "username": user.username,
-        "hashed_password": get_password_hash(user.password)
+        "hashed_password": get_password_hash(user.password),
+        "history": [],
+        "saved": []
     }
     return {"message": "User created successfully"}
 
@@ -79,3 +95,38 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
         
     return username
+
+# ── User Data Endpoints ───────────────────────────────────────────────────────
+
+@router.get("/user/data")
+async def get_user_data(username: str = Depends(get_current_user)):
+    user = users_db.get(username, {})
+    return {
+        "history": user.get("history", []),
+        "saved": user.get("saved", [])
+    }
+
+@router.post("/user/history")
+async def add_history(item: HistoryItem, username: str = Depends(get_current_user)):
+    user = users_db[username]
+    if item.query in user["history"]:
+        user["history"].remove(item.query) # Remove so we can push it to the top
+    user["history"].insert(0, item.query)
+    return {"history": user["history"]}
+
+@router.post("/user/saved")
+async def toggle_saved(standard: SavedStandard, username: str = Depends(get_current_user)):
+    user = users_db[username]
+    saved_list = user.get("saved", [])
+    
+    # Check if standard is already saved
+    existing = [s for s in saved_list if s["is_code"] == standard.is_code]
+    
+    if existing:
+        # If it exists, remove it (Toggle Off)
+        user["saved"] = [s for s in saved_list if s["is_code"] != standard.is_code]
+    else:
+        # If it doesn't exist, add it (Toggle On)
+        user["saved"].append(standard.dict())
+        
+    return {"saved": user["saved"]}
